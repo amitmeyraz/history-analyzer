@@ -4,18 +4,26 @@ History Source Analyzer - Flask API
 מערכת מלאה לניתוח מקורות היסטוריים
 """
 
-from flask import Flask, request, jsonify, send_from_directory
-from flask_cors import CORS
+from flask import Flask, request, jsonify
+from flask_cors import CORS, cross_origin
 import os
 import json
 import subprocess
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 import anthropic
 
 app = Flask(__name__)
-CORS(app, resources={r"/api/*": {"origins": "*"}})
-app.config['CORS_HEADERS'] = 'Content-Type'
+
+# CORS מלא - מאפשר גישה מכל מקום
+CORS(app, resources={
+    r"/api/*": {
+        "origins": "*",
+        "methods": ["GET", "POST", "OPTIONS"],
+        "allow_headers": ["Content-Type"]
+    }
+})
+
 # הגדרות
 STUDY_MATERIALS_DIR = Path(__file__).parent / 'study_materials'
 API_KEY = os.environ.get('ANTHROPIC_API_KEY')
@@ -174,18 +182,22 @@ class HistoryAnalyzer:
 
 # Routes
 
-('/')
+@app.route('/')
+@cross_origin()
 def index():
     """עמוד ראשי"""
-    return """
-    <h1>History Analyzer API</h1>
-    <p>API is running!</p>
-    <p>POST to /api/analyze to analyze a source</p>
-    """
+    return jsonify({
+        'status': 'ok',
+        'message': 'History Analyzer API is running'
+    })
 
-@app.route('/api/materials', methods=['GET'])
+@app.route('/api/materials', methods=['GET', 'OPTIONS'])
+@cross_origin()
 def list_materials():
     """רשימת חומרי לימוד זמינים"""
+    if request.method == 'OPTIONS':
+        return jsonify({'status': 'ok'})
+    
     materials = []
     if STUDY_MATERIALS_DIR.exists():
         materials = [f.stem for f in STUDY_MATERIALS_DIR.glob('*.docx')]
@@ -194,16 +206,14 @@ def list_materials():
         'success': True,
         'materials': materials
     })
-@app.route('/api/analyze', methods=['OPTIONS'])
-def analyze_options():
-    response = jsonify({'status': 'ok'})
-    response.headers.add('Access-Control-Allow-Origin', '*')
-    response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
-    response.headers.add('Access-Control-Allow-Methods', 'POST')
-    return response
-@app.route('/api/analyze', methods=['POST'])
+
+@app.route('/api/analyze', methods=['POST', 'OPTIONS'])
+@cross_origin()
 def analyze():
     """ניתוח מקור"""
+    
+    if request.method == 'OPTIONS':
+        return jsonify({'status': 'ok'})
     
     if not API_KEY:
         return jsonify({
@@ -231,9 +241,10 @@ def analyze():
             material_name=data['material']
         )
         
-        response = jsonify({'success': True, 'analysis': result})
-        response.headers.add('Access-Control-Allow-Origin', '*')
-        return response
+        return jsonify({
+            'success': True,
+            'analysis': result
+        })
         
     except Exception as e:
         return jsonify({
@@ -242,6 +253,7 @@ def analyze():
         }), 500
 
 @app.route('/api/health', methods=['GET'])
+@cross_origin()
 def health():
     """בדיקת תקינות"""
     return jsonify({
@@ -257,4 +269,8 @@ if __name__ == '__main__':
     print(f"🔑 API Key configured: {bool(API_KEY)}")
     
     # הרצה
-    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8080)), debug=False)
+    app.run(
+        host='0.0.0.0',
+        port=int(os.environ.get('PORT', 8080)),
+        debug=False
+    )
