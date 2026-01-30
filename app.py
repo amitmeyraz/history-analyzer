@@ -194,7 +194,13 @@ def list_materials():
         'success': True,
         'materials': materials
     })
-
+@app.route('/api/analyze', methods=['OPTIONS'])
+def analyze_options():
+    response = jsonify({'status': 'ok'})
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
+    response.headers.add('Access-Control-Allow-Methods', 'POST')
+    return response
 @app.route('/api/analyze', methods=['POST'])
 def analyze():
     """ניתוח מקור"""
