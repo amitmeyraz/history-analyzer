@@ -14,7 +14,7 @@ from typing import Dict, Any, Optional
 import anthropic
 
 app = Flask(__name__)
-CORS(app)  # מאפשר גישה מכל דומיין
+CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 # הגדרות
 STUDY_MATERIALS_DIR = Path(__file__).parent / 'study_materials'
