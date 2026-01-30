@@ -15,7 +15,7 @@ import anthropic
 
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "*"}})
-
+app.config['CORS_HEADERS'] = 'Content-Type'
 # הגדרות
 STUDY_MATERIALS_DIR = Path(__file__).parent / 'study_materials'
 API_KEY = os.environ.get('ANTHROPIC_API_KEY')
