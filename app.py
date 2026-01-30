@@ -197,6 +197,9 @@ def list_materials():
 
 @app.route('/api/analyze', methods=['POST'])
 def analyze():
+    response = jsonify({'test': 'ok'})
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
     """ניתוח מקור"""
     
     if not API_KEY:
