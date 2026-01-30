@@ -252,4 +252,4 @@ if __name__ == '__main__':
     print(f"🔑 API Key configured: {bool(API_KEY)}")
     
     # הרצה
-app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8080)), debug=False)
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8080)), debug=False)
