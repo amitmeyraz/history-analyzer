@@ -174,7 +174,7 @@ class HistoryAnalyzer:
 
 # Routes
 
-@app.route('/')
+('/')
 def index():
     """עמוד ראשי"""
     return """
@@ -197,9 +197,6 @@ def list_materials():
 
 @app.route('/api/analyze', methods=['POST'])
 def analyze():
-    response = jsonify({'test': 'ok'})
-    response.headers.add('Access-Control-Allow-Origin', '*')
-    return response
     """ניתוח מקור"""
     
     if not API_KEY:
@@ -228,9 +225,9 @@ def analyze():
             material_name=data['material']
         )
         
-        return jsonify({
-            'success': True,
-            'analysis': result
+        response = jsonify({'success': True, 'analysis': result})
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        return response
         })
         
     except Exception as e:
