@@ -66,7 +66,7 @@ class HistoryAnalyzer:
 {question}
 
 **חומר לימודי רלוונטי:**
-{study_material[:15000]}
+{study_material[:5000]}
 
 ---
 
